@@ -1,4 +1,4 @@
-# AI-Powered Search Engine
+# KM Search Engine(Backend)
 
 This project is an AI-powered search engine for knowledge management. It uses Flask for the backend, and leverages Dense and Sparse Retrievers for information retrieval.
 
@@ -14,8 +14,8 @@ This project is an AI-powered search engine for knowledge management. It uses Fl
 The project consists of several components:
 
 - `Backend.py`: This is the main Flask application file. It sets up the API endpoint for search and handles the search logic.
-- `local_model`: This folder contains the SBERT model configuration.
-- `Index_files`: This folder contains the index of documents in the database, used for performing similarity matches between user queries and documents.
+- `local_model`: This folder contains the SBERT model configuration.It is static.
+- `Index_files`: This folder contains the index of documents on knowledge management site, used for performing similarity matches between user queries and documents. They are static.
 - `retriv`: This folder contains wrapped classes that provide the functionality of the AI-powered search engine. It stores the model inferencing code.
 - `test_backend_api.py`: This script tests the backend API.
 - `test_model_inference.py`: This script tests the model inference.

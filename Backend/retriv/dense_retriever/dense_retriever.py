@@ -27,7 +27,7 @@ class DenseRetriever(BaseRetriever):
         """The Dense Retriever performs [semantic search](https://en.wikipedia.org/wiki/Semantic_search), i.e., it compares vector representations of queries and documents to compute the relevance scores of the latter.
 
         Args:
-            index_name (str, optional): [retriv](https://github.com/AmenRa/retriv) will use `index_name` as the identifier of your index. Defaults to "new-index".
+            index_name (str, optional): [retriv] will use `index_name` as the identifier of your index. Defaults to "new-index".
 
             model (str, optional): defines the encoder model to encode queries and documents into vectors. You can use an [HuggingFace's Transformers](https://huggingface.co/models) pre-trained model by providing its ID or load a local model by providing its path.  In the case of local models, the path must point to the directory containing the data saved with the [`PreTrainedModel.save_pretrained`](https://huggingface.co/docs/transformers/v4.26.1/en/main_classes/model#transformers.PreTrainedModel.save_pretrained) method. Note that the representations are computed with `mean pooling` over the `last_hidden_state`. Defaults to "sentence-transformers/all-MiniLM-L6-v2".
 

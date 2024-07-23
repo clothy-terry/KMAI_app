@@ -46,7 +46,7 @@ def bm25(
 
         df = np.float32(len(indices))
         idf = np.float32(np.log(1.0 + (((doc_count - df) + 0.5) / (df + 0.5))))
-
+        scores = np.zeros(doc_count, dtype=np.float32)
         scores[indices] += idf * (
             (freqs * (k1 + 1.0))
             / (freqs + k1 * (1.0 - b + (b * relative_doc_lens[indices])))

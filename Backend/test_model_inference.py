@@ -4,7 +4,7 @@ from retriv import SparseRetriever
 
 
 dr = DenseRetriever.load("new-index")
-sr = SparseRetriever.load("index1")
+sr = SparseRetriever.load("index_June_20_2024")
 
 def search():
     while True:

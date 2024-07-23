@@ -7,7 +7,7 @@ app = Flask(__name__)
 CORS(app)
 
 dr = DenseRetriever.load("new-index")
-sr = SparseRetriever.load("index1")
+sr = SparseRetriever.load("sparse_index(1)_June_20_2024")
 
 @app.route('/search', methods=['POST'])
 def search():

@@ -2,7 +2,7 @@ import requests
 import json
 
 url = 'http://localhost:5000/search'
-data = {'query': ''}
+data = {'query': 'nitrogen hydrogen'}
 headers = {'Content-Type': 'application/json'}
 
 response = requests.post(url, data=json.dumps(data), headers=headers)

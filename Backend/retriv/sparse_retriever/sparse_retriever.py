@@ -31,7 +31,7 @@ class SparseRetriever(BaseRetriever):
         model: str = "bm25",
         min_df: int = 1,
         tokenizer: Union[str, callable] = "whitespace",
-        stemmer: Union[str, callable] = "english",
+        stemmer: Union[str, callable] = None,
         stopwords: Union[str, List[str], Set[str]] = "english",
         do_lowercasing: bool = True,
         do_ampersand_normalization: bool = True,
@@ -43,17 +43,17 @@ class SparseRetriever(BaseRetriever):
         """The Sparse Retriever is a traditional searcher based on lexical matching. It supports BM25, the retrieval model used by major search engines libraries, such as Lucene and Elasticsearch. retriv also implements the classic relevance model TF-IDF for educational purposes.
 
         Args:
-            index_name (str, optional): [retriv](https://github.com/AmenRa/retriv) will use `index_name` as the identifier of your index. Defaults to "new-index".
+            index_name (str, optional): [retriv] will use `index_name` as the identifier of your index. Defaults to "new-index".
 
             model (str, optional): defines the retrieval model to use for searching (`bm25` or `tf-idf`). Defaults to "bm25".
 
             min_df (int, optional): terms that appear in less than `min_df` documents will be ignored. If integer, the parameter indicates the absolute count. If float, it represents a proportion of documents. Defaults to 1.
 
-            tokenizer (Union[str, callable], optional): [tokenizer](https://github.com/AmenRa/retriv/blob/main/docs/text_preprocessing.md) to use during preprocessing. You can pass a custom callable tokenizer or disable tokenization by setting the parameter to `None`. Defaults to "whitespace".
+            tokenizer (Union[str, callable], optional): [tokenizer]to use during preprocessing. You can pass a custom callable tokenizer or disable tokenization by setting the parameter to `None`. Defaults to "whitespace".
 
-            stemmer (Union[str, callable], optional): [stemmer](https://github.com/AmenRa/retriv/blob/main/docs/text_preprocessing.md) to use during preprocessing. You can pass a custom callable stemmer or disable stemming setting the parameter to `None`. Defaults to "english".
+            stemmer (Union[str, callable], optional): [stemmer] to use during preprocessing. You can pass a custom callable stemmer or disable stemming setting the parameter to `None`. Defaults to "english".
 
-            stopwords (Union[str, List[str], Set[str]], optional): [stopwords](https://github.com/AmenRa/retriv/blob/main/docs/text_preprocessing.md) to remove during preprocessing. You can pass a custom stop-word list or disable stop-words removal by setting the parameter to `None`. Defaults to "english".
+            stopwords (Union[str, List[str], Set[str]], optional): [stopwords] to remove during preprocessing. You can pass a custom stop-word list or disable stop-words removal by setting the parameter to `None`. Defaults to "english".
 
             do_lowercasing (bool, optional): whether or not to lowercase texts. Defaults to True.
 
@@ -470,7 +470,7 @@ class SparseRetriever(BaseRetriever):
         cutoff: int = 100,
     ):
         """Use the AutoTune function to tune [BM25](https://en.wikipedia.org/wiki/Okapi_BM25) parameters w.r.t. your document collection and queries.
-        All metrics supported by [ranx](https://github.com/AmenRa/ranx) are supported by the `autotune` function. At the of the process, the best parameter configuration is automatically applied to the `SparseRetriever` instance and saved to disk. You can inspect the current configuration by printing `sr.hyperparams`.
+        All metrics supported by [ranx] are supported by the `autotune` function. At the of the process, the best parameter configuration is automatically applied to the `SparseRetriever` instance and saved to disk. You can inspect the current configuration by printing `sr.hyperparams`.
 
         Args:
             queries (List[Dict[str, str]]): queries to use for the optimization process.

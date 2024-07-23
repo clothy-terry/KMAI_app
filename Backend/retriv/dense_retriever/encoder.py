@@ -37,7 +37,7 @@ class Encoder:
     def __init__(
         self,
         index_name: str = "new-index",
-        model: str = "sentence-transformers/all-MiniLM-L6-v2",
+        model: str = "../../local_model",
         normalize: bool = True,
         return_numpy: bool = True,
         max_length: int = 128,
@@ -45,7 +45,12 @@ class Encoder:
     ):
         self.index_name = index_name
         self.model = model
+        # BERT tokenizer: input text into a sequence of tokens (numerical representations of words or subwords)
         self.tokenizer = AutoTokenizer.from_pretrained(model)
+        # SBERT encoder:
+        # 1. compute three embedding: Token Embeddings, Segment Embeddings, Position Embeddings
+        # 2. Passed through several layers of transformer encoders. Each encoder consists of a self-attention mechanism and a feed-forward neural network.
+        # Pooling the output of transformer encoders to get a single vector representation for the sentence
         self.encoder = AutoModel.from_pretrained(model).to(device).eval()
         self.embedding_dim = AutoConfig.from_pretrained(model).hidden_size
         self.max_length = max_length
@@ -118,22 +123,45 @@ class Encoder:
             disable=not show_progress,
             **pbar_kwargs,
         )
-
+        # process sentences in batches
         for i in range(ceil(len(texts) / batch_size)):
             start, stop = i * batch_size, (i + 1) * batch_size
+            # Tokenize current sentences/documents batch
             tokens = self.tokenize(texts[start:stop])
 
             with torch.no_grad():
+                # Encode: compute embedding, pass through SBERT to get output embedding
+                # emb = self.encoder(**tokens).last_hidden_state is generating embeddings for a batch of documents. 
+                # The last_hidden_state is a tensor of shape (batch_size=#docs, doc_length, hidden_size), 
+                # doc_length is maximum number of tokens in any document in the batch.
+                # and hidden_size is the dimension of the BERT embeddings vector.
+
+                # E.g. ['doc1', 'doc2', 'doc3'] -> BERT-tokenizer -> [(#token*vecotr dim)], no matter the doc text is a single sentence or multiple sentences, it tokenize the same way.
+                # Tokenization detail: 
+                # Split into sentences
+                # 1. Tokenize into words: ['This', 'is', 'a', 'sentence']
+                # 2. If the word is not within its vocabulary, use 'WordPiece', e.g. embeddins-> [“em”, “##bed”, “##ding”, “##s”], ## indicate it is a subword from a larger word
+                # 3. It adds special tokens like [CLS] at the beginning and [SEP] at the end of each sentence to distinguish sentences
+                # 4. Convert each token into an ID(n-dim vector) predefined in BERT vocabulary (n = 768)
                 emb = self.encoder(**tokens).last_hidden_state
+                # Pooling to generate vector representation of sentence(s)
+                # reduces the doc_length dimension by taking the mean across all tokens in each sentence, 
+                # resulting in a tensor of shape (batch_size, hidden_size). 
+                # emb at this point contains one vector embedding for each document in the batch.
+                # takes the mean of the token-level vectors in emb, but ignores the vectors for padding tokens. The tokens["attention_mask"]
                 emb = self.mean_pooling(emb, tokens["attention_mask"])
                 if self.normalize:
                     emb = normalize(emb, dim=-1)
-
+            # sentences embedding for each batch
+            # [[batch1_emb], [batch2_emb], ..]
             embeddings.append(emb)
 
             pbar.update(stop - start)
         pbar.close()
 
+        # concat all all sentences embeddings into a single embedding
+        # Or, one sentence embedding to one sentence embedding
+        # [[batch1_emb], [batch2_emb], ..] -> [all_batch_embs]
         embeddings = torch.cat(embeddings)
 
         if self.return_numpy:
@@ -151,6 +179,7 @@ class Encoder:
         n_docs = count_lines(path)
         collection = read_jsonl(path, callback=callback, generator=True)
 
+        # a large np array to hold embedding
         reservoir = np.empty((1_000_000, self.embedding_dim), dtype=np.float32)
         reservoir_n = 0
         offset = 0
@@ -161,7 +190,7 @@ class Encoder:
             disable=not show_progress,
             **pbar_kwargs,
         )
-
+        # texts = [doc1_text, doc2_text, ...], list_length = batch_size
         for texts in generate_batch(collection, batch_size):
             # Compute embeddings -----------------------------------------------
             embeddings = self.bencode(texts, batch_size=len(texts), show_progress=False)
@@ -169,6 +198,7 @@ class Encoder:
             # Compute new offset -----------------------------------------------
             new_offset = offset + len(embeddings)
 
+            # if reservoir is full, save to disck and initialize a new one
             if new_offset >= len(reservoir):
                 np.save(
                     embeddings_folder_path(self.index_name)

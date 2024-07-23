@@ -38,20 +38,20 @@ class HybridRetriever(BaseRetriever):
         dense_retriever: DenseRetriever = None,
         merger: Merger = None,
     ):
-        """The [Hybrid Retriever](https://github.com/AmenRa/retriv/blob/main/docs/hybrid_retriever.md) is searcher based on both lexical and semantic matching. It comprises three components: the [Sparse Retriever]((https://github.com/AmenRa/retriv/blob/main/docs/sparse_retriever.md)), the [Dense Retriever]((https://github.com/AmenRa/retriv/blob/main/docs/dense_retriever.md)), and the Merger. The Merger fuses the results of the Sparse and Dense Retrievers to compute the _hybrid_ results.
+        """The [Hybrid Retriever] is searcher based on both lexical and semantic matching. It comprises three components: the [Sparse Retriever], the [Dense Retriever], and the Merger. The Merger fuses the results of the Sparse and Dense Retrievers to compute the _hybrid_ results.
 
         Args:
-            index_name (str, optional): [retriv](https://github.com/AmenRa/retriv) will use `index_name` as the identifier of your index. Defaults to "new-index".
+            index_name (str, optional): [retriv]will use `index_name` as the identifier of your index. Defaults to "new-index".
 
             sr_model (str, optional): defines the model to use for sparse retrieval (`bm25` or `tf-idf`). Defaults to "bm25".
 
             min_df (int, optional): terms that appear in less than `min_df` documents will be ignored. If integer, the parameter indicates the absolute count. If float, it represents a proportion of documents. Defaults to 1.
 
-            tokenizer (Union[str, callable], optional): [tokenizer](https://github.com/AmenRa/retriv/blob/main/docs/text_preprocessing.md) to use during preprocessing. You can pass a custom callable tokenizer or disable tokenization setting the parameter to `None`. Defaults to "whitespace".
+            tokenizer (Union[str, callable], optional): [tokenizer]to use during preprocessing. You can pass a custom callable tokenizer or disable tokenization setting the parameter to `None`. Defaults to "whitespace".
 
-            stemmer (Union[str, callable], optional): [stemmer](https://github.com/AmenRa/retriv/blob/main/docs/text_preprocessing.md) to use during preprocessing. You can pass a custom callable stemmer or disable stemming setting the parameter to `None`. Defaults to "english".
+            stemmer (Union[str, callable], optional): [stemmer] to use during preprocessing. You can pass a custom callable stemmer or disable stemming setting the parameter to `None`. Defaults to "english".
 
-            stopwords (Union[str, List[str], Set[str]], optional): [stopwords](https://github.com/AmenRa/retriv/blob/main/docs/text_preprocessing.md) to remove during preprocessing. You can pass a custom stop-word list or disable stop-words removal by setting the parameter to `None`. Defaults to "english".
+            stopwords (Union[str, List[str], Set[str]], optional): [stopwords]to remove during preprocessing. You can pass a custom stop-word list or disable stop-words removal by setting the parameter to `None`. Defaults to "english".
 
             do_lowercasing (bool, optional): whether to lowercase texts. Defaults to True.
 
@@ -368,7 +368,7 @@ class HybridRetriever(BaseRetriever):
         cutoff: int = 100,
         batch_size: int = 32,
     ):
-        """Use the AutoTune function to tune the Sparse Retriever's model [BM25](https://en.wikipedia.org/wiki/Okapi_BM25) parameters and the importance given to the lexical and semantic relevance scores computed by the Sparse and Dense Retrievers, respectively. All metrics supported by [ranx](https://github.com/AmenRa/ranx) are supported by the `autotune` function. At the of the process, the best parameter configurations are automatically applied and saved to disk. You can inspect the best configurations found by printing `hr.sparse_retriever.hyperparams`, `hr.merger.norm` and `hr.merger.params`.
+        """Use the AutoTune function to tune the Sparse Retriever's model [BM25](https://en.wikipedia.org/wiki/Okapi_BM25) parameters and the importance given to the lexical and semantic relevance scores computed by the Sparse and Dense Retrievers, respectively.  supported by the `autotune` function. At the of the process, the best parameter configurations are automatically applied and saved to disk. You can inspect the best configurations found by printing `hr.sparse_retriever.hyperparams`, `hr.merger.norm` and `hr.merger.params`.
 
         Args:
             queries (List[Dict[str, str]]): queries to use for the optimization process.
