@@ -198,11 +198,11 @@ body, html {
 }
 
 .predefined-list-container {
-  margin-top: 28%;
+  padding: 20px;
   
 }
 
-
+/**/
 .keyword-bar {
   flex-grow: 1; /* Takes up the remaining space */
   padding: 10px;
@@ -242,3 +242,4 @@ body, html {
   padding: 10px;
   background-color: white;
 }
+

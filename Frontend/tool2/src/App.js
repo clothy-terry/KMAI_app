@@ -3,6 +3,8 @@ import "./App.css";
 import keywordsList1 from "./keywordLists/keywordList1.json";
 import keywordsList2 from "./keywordLists/keyowrdList2.json";
 import Modal from "react-modal";
+import DataGrid from "react-data-grid";
+import "react-data-grid/lib/styles.css";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,6 +18,35 @@ const App = () => {
     "Previous search 3",
   ]);
   const [numDocs, setNumDocs] = useState(5);
+  /*word-doc-excel*/
+  const [excelModalIsOpen, setExcelModalIsOpen] = useState(false);
+
+  const [gridData, setGridData] = useState({ columns: [], rows: [] });
+
+  const generateData = () => {
+    const data = documents.slice(0, numDocs).map((doc, i) => {
+      const row = { id: i, document_name: doc };
+      UserKeywords.forEach((keyword, j) => {
+        row[keyword] = `${doc}, ${keyword}`; // cell value
+      });
+      return row;
+    });
+
+    const columns = [
+      { key: "document_name", name: "Document Name" },
+      ...UserKeywords.map((keyword, i) => ({
+        key: keyword, // Use keyword as key
+        name: keyword,
+      })),
+    ];
+
+    setGridData({ columns, rows: data });
+  };
+
+  const handleExcelGenerate = () => {
+    setExcelModalIsOpen(true);
+    generateData();
+  };
 
   /*user keyword model pop up*/
   const [isUserKeywordModalOpen, setIsUserKeywordModalOpen] = useState(false);
@@ -228,6 +259,17 @@ const App = () => {
               </div>
             )}
           </div>
+          <div className="domain-list">
+            <h3>Document IDs:</h3>
+            {documents.slice(0, numDocs).map((doc, index) => (
+              <div key={index} className="document-name">
+                {doc}
+              </div>
+            ))}
+          </div>
+          
+        </div>
+        <div className="right-half">
           <div className="predefined-list-container">
             <select onChange={handleListSelect}>
               <option value="list0">Select a keyword list</option>
@@ -283,21 +325,20 @@ const App = () => {
               </div>
             ))}
           </Modal>
-        </div>
-        <div className="right-half">
-          <div className="domain-list">
-            <h3>Document IDs:</h3>
-            {documents.slice(0, numDocs).map((doc, index) => (
-              <div key={index} className="document-name">
-                {doc}
+          <div className="word-doc-excel">
+            <button onClick={() => handleExcelGenerate()}>Generate CSV</button>
+            <Modal
+              isOpen={excelModalIsOpen}
+              onRequestClose={() => setExcelModalIsOpen(false)}
+            >
+              <div>
+                <button onClick={() => setExcelModalIsOpen(false)}>
+                  Close
+                </button>
+                <DataGrid columns={gridData.columns} rows={gridData.rows} />
               </div>
-            ))}
-            <div>doc list output</div>
+            </Modal>
           </div>
-          <Table
-            documents={documents.slice(0, numDocs)}
-            keywords={UserKeywords}
-          />
         </div>
       </div>
     </div>
