@@ -84,6 +84,75 @@ def keyword_frequency():
 
     return jsonify(result_dict)
 
+#pip install spacy
+#python -m spacy download en_core_web_sm
+
+import spacy
+from spacy.matcher import PhraseMatcher
+# Load spaCy model
+nlp = spacy.load('en_core_web_sm')
+
+@app.route('/keyword_context', methods=['POST'])
+# input: 'doc_ids', 'keywords', 'window_size'
+# output: doct[keyowrd][]
+def keyword_context():
+    data = request.get_json()
+    doc_ids = data.get('doc_ids')
+    keywords = data.get('keywords')
+    window_size = data.get('window_size')
+
+    # Load the document dictionary from the JSON file
+    with open('all_collected_text.json', 'r') as f:
+        doc_dict = json.load(f)
+
+    # Filter the documents based on the provided IDs
+    doc_dict = [doc for doc in doc_dict if doc['id'] in doc_ids]
+    # Function to find sentence or nearby words for each keyword
+    def find_keyword_context(doc_text, keywords, window_size=None):
+        # split the each doc text into sentences -> doc.sents
+        doc = nlp(doc_text)
+        keyword_context = {}
+        # find sentence
+        if window_size is None:
+            for sentence in doc.sents:
+                for keyword in keywords:
+                    if keyword in sentence.text.lower():
+                        sentence_words = [token.text.lower() for token in sentence]
+                        # if keyword exist in return dict
+                        if keyword in keyword_context:
+                            keyword_context[keyword].append(sentence.text)
+                        else:
+                            keyword_context[keyword] = [sentence.text]
+        # find nearby words of key phrase
+        else:
+            # initialize shared vocab across multiple docs text
+            matcher = PhraseMatcher(nlp.vocab, attr='LOWER')
+            # store the sequence of token/key phrase/pattern to a Doc object for efficient find
+            key_phrase = [nlp.make_doc(keyword) for keyword in keywords]
+            matcher.add("KeywordMatcher", key_phrase)
+            # a list of matches, tuples(id, start_token_idx, end_token_idx)
+            matches = matcher(doc)
+            for match_id, start, end in matches:
+                keyword = doc[start:end].text
+                # expand start, end token idx to include nearby words
+                context_start = max(0, start - window_size)
+                context_end = min(len(doc), end + window_size)
+                context = doc[context_start:context_end].text
+                if keyword in keyword_context:
+                    keyword_context[keyword].append(context)
+                else:
+                    keyword_context[keyword] = [context]
+
+        return keyword_context
+    res_doc_keyword_dict = {}
+    for doc in doc_dict:
+        doc_text = doc['text']
+        doc_id = doc['id']
+        keyword_sent_dict = find_keyword_context(doc_text, keywords, window_size)
+        res_doc_keyword_dict[doc_id] = keyword_sent_dict
+        
+    return jsonify(res_doc_keyword_dict)
+
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)

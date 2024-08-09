@@ -5,6 +5,7 @@ import keywordsList2 from "./keywordLists/keyowrdList2.json";
 import Modal from "react-modal";
 import DataGrid from "react-data-grid";
 import "react-data-grid/lib/styles.css";
+import XLSX from "xlsx";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,29 +19,63 @@ const App = () => {
     "Previous search 3",
   ]);
   const [numDocs, setNumDocs] = useState(5);
-  /*word-doc-excel*/
+  /*word-doc-excel generate & download*/
+  const handleResultDownload = () => {
+    // Create a new array of rows without the 'id' field
+    const rowsWithoutId = gridData.rows.map(row => {
+      const { id, ...rowWithoutId } = row;
+      return rowWithoutId;
+    });
+  
+    const ws = XLSX.utils.json_to_sheet(rowsWithoutId);
+  
+    // Set the width of each column
+    ws['!cols'] = Array(gridData.columns.length).fill({ wch: 40 }); // Adjust the number 20 to your desired width
+  
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Results");
+    XLSX.writeFile(wb, "results.xlsx");
+  };
+  
+
   const [excelModalIsOpen, setExcelModalIsOpen] = useState(false);
 
   const [gridData, setGridData] = useState({ columns: [], rows: [] });
 
   const generateData = () => {
-    const data = documents.slice(0, numDocs).map((doc, i) => {
-      const row = { id: i, document_name: doc };
-      UserKeywords.forEach((keyword, j) => {
-        row[keyword] = `${doc}, ${keyword}`; // cell value
+    fetch("http://localhost:5000/keyword_context", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        doc_ids: documents.slice(0, numDocs),
+        keywords: UserKeywords,
+        window_size: None, // Set to None if require context of entire sentence.
+      }),
+    })
+      .then((response) => response.json())
+      .then((doc_keyword_dict) => {
+        const data = documents.slice(0, numDocs).map((doc, i) => {
+          const row = { id: i, document_name: doc };
+          UserKeywords.forEach((keyword, j) => {
+            if (doc_keyword_dict[doc] && doc_keyword_dict[doc][keyword]) {
+              row[keyword] = doc_keyword_dict[doc][keyword][0];
+            } else {
+              row[keyword] = `Not Found`; // cell value
+            }
+          });
+          return row;
+        });
+
+        const columns = [
+          { key: "document_name", name: "Document Name" },
+          ...UserKeywords.map((keyword, i) => ({
+            key: keyword, // Use keyword as key
+            name: keyword,
+          })),
+        ];
+
+        setGridData({ columns, rows: data });
       });
-      return row;
-    });
-
-    const columns = [
-      { key: "document_name", name: "Document Name" },
-      ...UserKeywords.map((keyword, i) => ({
-        key: keyword, // Use keyword as key
-        name: keyword,
-      })),
-    ];
-
-    setGridData({ columns, rows: data });
   };
 
   const handleExcelGenerate = () => {
@@ -58,7 +93,27 @@ const App = () => {
     setUserKeywords(UserKeywords.filter((_, index) => index !== indexToDelete));
   };
 
+  /*user upload customized keyword xlsx */
+  const [userUploadedKeywordList, setUserUploadedKeywordList] = useState([]);
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      const keywords = jsonData.slice(1).map(row => row[0]);//get the first col of xlsx
+      setUserUploadedKeywordList(keywords);
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
   /* predefined keyword lists options*/
+  const handleTemplateDownload = () => {
+    window.location.href = "/template.xlsx"; // put in the public folder
+  };
+
   const [selectedList, setSelectedList] = useState([
     "please select a keywords list to view",
   ]);
@@ -72,6 +127,8 @@ const App = () => {
       setSelectedList(keywordsList1);
     } else if (selectedOption === "list2") {
       setSelectedList(keywordsList2);
+    } else if (selectedOption === "list3") {
+      setSelectedList(userUploadedKeywordList);
     }
   };
 
@@ -267,7 +324,6 @@ const App = () => {
               </div>
             ))}
           </div>
-          
         </div>
         <div className="right-half">
           <div className="predefined-list-container">
@@ -275,9 +331,14 @@ const App = () => {
               <option value="list0">Select a keyword list</option>
               <option value="list1">Keyword List 1</option>
               <option value="list2">Keyword List 2</option>
+              {userUploadedKeywordList.length > 0 && (
+                <option value="list3">User Uploaded Keyword List</option>
+              )}
             </select>
             <button onClick={handleViewClick}>View</button>
             <button onClick={handleAddAllClick}>Add</button>
+            <button onClick={handleTemplateDownload}>Download Template</button>
+            <input type="file" accept=".xlsx" onChange={handleFileUpload} />
             {addError && <div className="error-popup">{addError}</div>}
             <Modal
               isOpen={isModalOpen}
@@ -327,6 +388,7 @@ const App = () => {
           </Modal>
           <div className="word-doc-excel">
             <button onClick={() => handleExcelGenerate()}>Generate CSV</button>
+            <button onClick={handleResultDownload}>Download Result</button>
             <Modal
               isOpen={excelModalIsOpen}
               onRequestClose={() => setExcelModalIsOpen(false)}

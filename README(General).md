@@ -26,6 +26,9 @@ User Interface (React.js)
     |
     | HTTP Requests (POST)
     |
+    |
+    | HTTP Requests (POST)
+    |
 Azure Web App -hosted Flask Server (Python)
     |--- Route Handlers: Handle incoming requests and return responses.
     |--- SBERT Model: A Sentence-BERT model for semantic text similarity.
