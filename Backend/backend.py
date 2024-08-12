@@ -125,23 +125,7 @@ def keyword_context():
                             keyword_context[keyword] = [sentence.text]
         # find nearby words of key phrase
         else:
-            # initialize shared vocab across multiple docs text
-            matcher = PhraseMatcher(nlp.vocab, attr='LOWER')
-            # store the sequence of token/key phrase/pattern to a Doc object for efficient find
-            key_phrase = [nlp.make_doc(keyword) for keyword in keywords]
-            matcher.add("KeywordMatcher", key_phrase)
-            # a list of matches, tuples(id, start_token_idx, end_token_idx)
-            matches = matcher(doc)
-            for match_id, start, end in matches:
-                keyword = doc[start:end].text
-                # expand start, end token idx to include nearby words
-                context_start = max(0, start - window_size)
-                context_end = min(len(doc), end + window_size)
-                context = doc[context_start:context_end].text
-                if keyword in keyword_context:
-                    keyword_context[keyword].append(context)
-                else:
-                    keyword_context[keyword] = [context]
+            pass
 
         return keyword_context
     res_doc_keyword_dict = {}
@@ -152,6 +136,69 @@ def keyword_context():
         res_doc_keyword_dict[doc_id] = keyword_sent_dict
         
     return jsonify(res_doc_keyword_dict)
+
+# save user doc to {index_name} folder, extract text to {index_name}.jsonl, build hr index
+from werkzeug.utils import secure_filename
+import os
+from retriv import HybridRetriever
+from text_mining import process_documents
+@app.route('/extract_and_build_index', methods=['POST'])
+def extract_and_build_index_route():
+    if 'files' not in request.files:
+        return jsonify({'error': 'No file part in the request'}), 400
+    # start saving the docs
+    files = request.files.getlist('files')
+    index_name = request.form.get('index_name')
+    directory = f'{index_name}'
+    print(directory)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    for file in files:
+        # If the user does not select a file, the browser might
+        # submit an empty file without a filename.
+        # if os doesn't work, just store docs at the frontend
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
+
+        if file:
+            filename = secure_filename(file.filename)
+            # may have restrictions on the maximum size of the file system, 
+            # or may not persist files when the application is restarted
+            file.save(os.path.join(directory, filename))
+    #start extracting text json from user_doc folder
+    print('start collecting text')
+    output_json_file = f"{index_name}.jsonl"
+    collected_text, skipped_files = process_documents(directory, output_json_file)
+
+    # start building index
+    
+    hr = HybridRetriever(
+        index_name= index_name,# specify a index name
+        sr_model="bm25",
+        min_df=1,
+        tokenizer="whitespace",
+        stemmer="english",
+        stopwords="english",
+        do_lowercasing=True,
+        do_ampersand_normalization=True,
+        do_special_chars_normalization=True,
+        do_acronyms_normalization=True,
+        do_punctuation_removal=True,
+        dr_model="local_model",
+        normalize=True,
+        max_length=128,
+        use_ann=False,
+    )
+    hr = hr.index_file(
+        path=output_json_file, # specify text json path
+        embeddings_path=None, 
+        use_gpu=False,  
+        batch_size=512,  
+        show_progress=True, 
+        callback=lambda doc: {"id": doc["id"], "text": doc["text"]}
+    )
+    
+    return jsonify({'skipped':skipped_files})
 
 
 if __name__ == '__main__':

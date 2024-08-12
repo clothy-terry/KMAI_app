@@ -19,6 +19,40 @@ const App = () => {
     "Previous search 3",
   ]);
   const [numDocs, setNumDocs] = useState(5);
+
+  /*user upload documents to build index */
+  const [indexName, setIndexName] = useState("");
+  const fileInputRef = useRef();  // Create a ref for the file input
+  const handleUserDocUpload = () => {
+    if (indexName === "") {
+      setError("Please give index a name");
+      return;
+    } else{
+      // Clear error message
+      setError(null)
+    }
+    const files = fileInputRef.current.files;  // Get the selected files from the file input
+    const formData = new FormData();
+    // Append each file to the form data
+    for (let i = 0; i < files.length; i++) {
+      formData.append('files', files[i]);
+    }
+    // Append index name to form data
+    formData.append('index_name', indexName);
+    fetch('http://localhost:5000/extract_and_build_index', {
+      method: 'POST',
+      body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+  };
+
+
   /*word-doc-excel generate & download*/
   const handleResultDownload = () => {
     // Create a new array of rows without the 'id' field
@@ -49,7 +83,7 @@ const App = () => {
       body: JSON.stringify({
         doc_ids: documents.slice(0, numDocs),
         keywords: UserKeywords,
-        window_size: None, // Set to None if require context of entire sentence.
+        window_size: null, // Set to None if require context of entire sentence.
       }),
     })
       .then((response) => response.json())
@@ -271,6 +305,14 @@ const App = () => {
       </div>
       <div className="search-ui">
         <div className="left-half">
+        <input type="file" ref={fileInputRef} multiple />
+        <button onClick={handleUserDocUpload}>Upload Your Own Documents</button>
+        <input
+            type="text"
+            value={indexName}
+            onChange={(e) => setIndexName(e.target.value)}
+            placeholder="Enter index name"
+          />
           <div className="results">
             {error && <div className="error-popup">{error}</div>}
           </div>
@@ -387,7 +429,7 @@ const App = () => {
             ))}
           </Modal>
           <div className="word-doc-excel">
-            <button onClick={() => handleExcelGenerate()}>Generate CSV</button>
+            <button onClick={() => handleExcelGenerate()}>Generate Table</button>
             <button onClick={handleResultDownload}>Download Result</button>
             <Modal
               isOpen={excelModalIsOpen}

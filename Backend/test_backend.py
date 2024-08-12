@@ -33,7 +33,7 @@ def test_keyword_context():
     url = 'http://localhost:5000/keyword_context'
     data = {'doc_ids':['Alerts Library / NitricOxide-220608.doc'], 
             'keywords': ['journal subscriptions'], 
-            'window_size': 3}
+            'window_size': None}
     headers = {'Content-Type': 'application/json'}
 
     response = requests.post(url, data=json.dumps(data), headers=headers)
@@ -45,7 +45,21 @@ def test_keyword_context():
     else:
         print(f"Request failed with status code {response.status_code}")
 
+def test_extract_and_build_index_route():
+    url = 'http://localhost:5000/extract_and_build_index'
+    headers = {'Content-Type': 'application/json'}
+
+    response = requests.post(url, headers=headers)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        # The response of the POST request
+        print(response.json()['skipped'])
+    else:
+        print(f"Request failed with status code {response.status_code}")
+
 if __name__ == '__main__':
     #test1()
     #test2()
-    test_keyword_context()
+    #test_keyword_context()
+    test_extract_and_build_index_route()
