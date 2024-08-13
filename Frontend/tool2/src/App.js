@@ -19,58 +19,101 @@ const App = () => {
     "Previous search 3",
   ]);
   const [numDocs, setNumDocs] = useState(5);
-
-  /*user upload documents to build index */
+  /* user check and delete index folder*/
+  const [userIndexResponse, setUserIndexResponse] = useState("");
   const [indexName, setIndexName] = useState("");
-  const fileInputRef = useRef();  // Create a ref for the file input
+  const handleCheckIndex = () => {
+    if (indexName === "") {
+      setError("Please enter an index name");
+      return;
+    } else {
+      setError(null);
+    }
+    fetch(`http://localhost:5000/check_index/${indexName}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setUserIndexResponse(data["message"]);
+      })
+      .catch((error) => {
+        setError(error);
+        console.error("Error:", error);
+      });
+  };
+  const handleDeleteIndex = () => {
+    if (indexName === "") {
+      setError("Please enter an index name");
+      return;
+    } else {
+      setError(null);
+    }
+    fetch(`http://localhost:5000/delete_index/${indexName}`, {
+      method: "DELETE",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setUserIndexResponse(data["message"]);
+      })
+      .catch((error) => {
+        setError(error);
+        console.error("Error:", error);
+      });
+  };
+  /*user upload documents to build index */
+  const fileInputRef = useRef(); // Create a ref for the file input
   const handleUserDocUpload = () => {
     if (indexName === "") {
       setError("Please give index a name");
       return;
-    } else{
+    } else {
       // Clear error message
-      setError(null)
+      setError(null);
     }
-    const files = fileInputRef.current.files;  // Get the selected files from the file input
+    const files = fileInputRef.current.files; // Get the selected files from the file input
+    if (files.length === 0) {
+      setError("Please choose files to upload");
+      return;
+    }
     const formData = new FormData();
     // Append each file to the form data
     for (let i = 0; i < files.length; i++) {
-      formData.append('files', files[i]);
+      formData.append("files", files[i]);
     }
     // Append index name to form data
-    formData.append('index_name', indexName);
-    fetch('http://localhost:5000/extract_and_build_index', {
-      method: 'POST',
+    formData.append("index_name", indexName);
+    // Should takes 1620 documents take 4 mins to build index
+    // Not counting text extraction time(scanned pdf that requires OCR takes a long time)
+    setUserIndexResponse("Uploading...");
+    fetch("http://localhost:5000/extract_and_build_index", {
+      method: "POST",
       body: formData,
     })
-    .then(response => response.json())
-    .then(data => {
-      console.log(data);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
+      .then((response) => response.json())
+      .then((data) => {
+        setUserIndexResponse(data["message"]);
+      })
+      .catch((error) => {
+        setError(error);
+        console.error("Error:", error);
+      });
   };
-
 
   /*word-doc-excel generate & download*/
   const handleResultDownload = () => {
     // Create a new array of rows without the 'id' field
-    const rowsWithoutId = gridData.rows.map(row => {
+    const rowsWithoutId = gridData.rows.map((row) => {
       const { id, ...rowWithoutId } = row;
       return rowWithoutId;
     });
-  
+
     const ws = XLSX.utils.json_to_sheet(rowsWithoutId);
-  
+
     // Set the width of each column
-    ws['!cols'] = Array(gridData.columns.length).fill({ wch: 40 }); // Adjust the number 20 to your desired width
-  
+    ws["!cols"] = Array(gridData.columns.length).fill({ wch: 40 }); // Adjust the number 20 to your desired width
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Results");
     XLSX.writeFile(wb, "results.xlsx");
   };
-  
 
   const [excelModalIsOpen, setExcelModalIsOpen] = useState(false);
 
@@ -137,7 +180,7 @@ const App = () => {
       const workbook = XLSX.read(data, { type: "array" });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-      const keywords = jsonData.slice(1).map(row => row[0]);//get the first col of xlsx
+      const keywords = jsonData.slice(1).map((row) => row[0]); //get the first col of xlsx
       setUserUploadedKeywordList(keywords);
     };
     reader.readAsArrayBuffer(file);
@@ -305,14 +348,21 @@ const App = () => {
       </div>
       <div className="search-ui">
         <div className="left-half">
-        <input type="file" ref={fileInputRef} multiple />
-        <button onClick={handleUserDocUpload}>Upload Your Own Documents</button>
-        <input
-            type="text"
-            value={indexName}
-            onChange={(e) => setIndexName(e.target.value)}
-            placeholder="Enter index name"
-          />
+          <div className="user_doc_upload_input">
+            <input type="file" ref={fileInputRef} multiple />
+          </div>
+          <div className="user_index_check_upload">
+            <input
+              type="text"
+              value={indexName}
+              onChange={(e) => setIndexName(e.target.value)}
+              placeholder="Enter index name"
+            />
+            <button onClick={handleCheckIndex}>Check</button>
+            <button onClick={handleUserDocUpload}>Upload</button>
+            <button onClick={handleDeleteIndex}>Delete</button>
+            {userIndexResponse && <div>{userIndexResponse}</div>}
+          </div>
           <div className="results">
             {error && <div className="error-popup">{error}</div>}
           </div>
@@ -429,7 +479,9 @@ const App = () => {
             ))}
           </Modal>
           <div className="word-doc-excel">
-            <button onClick={() => handleExcelGenerate()}>Generate Table</button>
+            <button onClick={() => handleExcelGenerate()}>
+              Generate Table
+            </button>
             <button onClick={handleResultDownload}>Download Result</button>
             <Modal
               isOpen={excelModalIsOpen}

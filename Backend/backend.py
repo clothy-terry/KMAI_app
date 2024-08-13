@@ -150,7 +150,6 @@ def extract_and_build_index_route():
     files = request.files.getlist('files')
     index_name = request.form.get('index_name')
     directory = f'{index_name}'
-    print(directory)
     if not os.path.exists(directory):
         os.makedirs(directory)
     for file in files:
@@ -165,13 +164,13 @@ def extract_and_build_index_route():
             # may have restrictions on the maximum size of the file system, 
             # or may not persist files when the application is restarted
             file.save(os.path.join(directory, filename))
+
     #start extracting text json from user_doc folder
     print('start collecting text')
     output_json_file = f"{index_name}.jsonl"
     collected_text, skipped_files = process_documents(directory, output_json_file)
 
     # start building index
-    
     hr = HybridRetriever(
         index_name= index_name,# specify a index name
         sr_model="bm25",
@@ -197,8 +196,31 @@ def extract_and_build_index_route():
         show_progress=True, 
         callback=lambda doc: {"id": doc["id"], "text": doc["text"]}
     )
-    
-    return jsonify({'skipped':skipped_files})
+    if skipped_files == []:
+        return jsonify({'message':'Uploaded!'})
+    else:
+        return jsonify({'message':f'Failed to process some docs:{skipped_files}'})
+
+@app.route('/check_index/<index_name>', methods=['GET'])
+def check_index(index_name):
+    directory = os.path.join('index_files', 'collections', index_name)
+    if os.path.exists(directory):
+        return jsonify({'message': f'Available!'})
+    else:
+        return jsonify({'message': f'Not available...Please upload'})
+
+import shutil
+
+@app.route('/delete_index/<index_name>', methods=['DELETE'])
+def delete_index(index_name):
+    directory = os.path.join('index_files', 'collections', index_name)
+    jsonl_file = f'{index_name}.jsonl'
+    if os.path.exists(jsonl_file) and os.path.exists(directory):
+        os.remove(jsonl_file)
+        shutil.rmtree(directory)
+        return jsonify({'message': f'"{index_name}" has been deleted.'})
+    else:
+        return jsonify({'message': f'Documents set not exist'})
 
 
 if __name__ == '__main__':

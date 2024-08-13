@@ -243,3 +243,7 @@ body, html {
   background-color: white;
 }
 
+.user_index_check_upload {
+  display: flex;
+  align-items: center;
+}

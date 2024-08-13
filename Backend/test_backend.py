@@ -47,14 +47,18 @@ def test_keyword_context():
 
 def test_extract_and_build_index_route():
     url = 'http://localhost:5000/extract_and_build_index'
-    headers = {'Content-Type': 'application/json'}
-
-    response = requests.post(url, headers=headers)
-
-    # Check if the request was successful
+    # Open the files in binary mode
+    files = [('files', ('FoodProcessing-240111.doc', open('FoodProcessing\FoodProcessing-240111.doc', 'rb')))]
+    # Include the necessary data for your POST request
+    data = {
+        'index_name': 'test_index',
+    }
+    response = requests.post(url, files=files, data=data)
+    # Close the files
+    for _, (_, file) in files:
+        file.close()
     if response.status_code == 200:
-        # The response of the POST request
-        print(response.json()['skipped'])
+        print(response.json()['skipped'], 'successful')
     else:
         print(f"Request failed with status code {response.status_code}")
 
