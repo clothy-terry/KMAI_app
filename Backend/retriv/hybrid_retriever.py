@@ -16,7 +16,7 @@ class HybridRetriever(BaseRetriever):
     def __init__(
         self,
         # Global params
-        index_name: str = "new-index",
+        index_name: str = "index2",
         # Sparse retriever params
         sr_model: str = "bm25",
         min_df: int = 1,
@@ -251,17 +251,28 @@ class HybridRetriever(BaseRetriever):
             List: results.
         """
 
-        sparse_results = self.sparse_retriever.search(query, False, 1_000)
+        sparse_results, top_docs_for_terms = self.sparse_retriever.search(query, False, 1_000)
         dense_results = self.dense_retriever.search(query, False, 1_000)
-        hybrid_results = self.merger.fuse([sparse_results, dense_results])
-        return (
-            self.prepare_results(
-                list(hybrid_results.keys())[:cutoff],
-                list(hybrid_results.values())[:cutoff],
-            )
-            if return_docs
-            else hybrid_results
-        )
+        ###
+        if len(sparse_results) == 0: # Only semantic search result
+            hybrid_results = dense_results
+            if return_docs:
+                if return_docs:
+                    return self.prepare_results(
+                        list(hybrid_results.keys())[:cutoff],
+                        list(hybrid_results.values())[:cutoff],
+                        ), top_docs_for_terms
+            else:
+                return hybrid_results, top_docs_for_terms
+        else:
+            hybrid_results = self.merger.fuse([sparse_results, dense_results])
+            if return_docs:
+                return self.prepare_results(
+                    list(hybrid_results.keys())[:cutoff],
+                    list(hybrid_results.values())[:cutoff],
+                    ), top_docs_for_terms
+            else:
+                return hybrid_results, top_docs_for_terms
 
     def msearch(
         self,

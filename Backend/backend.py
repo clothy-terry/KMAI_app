@@ -2,12 +2,16 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from retriv import DenseRetriever
 from retriv import SparseRetriever
+from retriv import Merger
+from retriv import HybridRetriever
 
 app = Flask(__name__)
 CORS(app)
 
 dr = DenseRetriever.load("new-index")
 sr = SparseRetriever.load("sparse_index(1)_June_20_2024")
+hr = HybridRetriever.load("index2")
+
 
 @app.route('/search', methods=['POST'])
 def search():
@@ -37,6 +41,33 @@ def search():
         'top_docs_for_terms': top_docs_for_terms
     }
     return jsonify(response)
+
+@app.route('/v2/search', methods=['POST'])
+def search_V2():
+    data = request.get_json()
+    query = data.get('query')
+    
+    # Check if the query is empty
+    if not query:
+        return jsonify({'error': 'Query must not be empty'}), 400
+    
+    merger = Merger()
+    merger.params = {"weights": [0.7, 0.3]}  # Set the weights for the two retrieval runs
+    hr.merger = merger
+    results, top_docs_for_terms = hr.search(
+            query='nitrogen hydrogen',  # What to search for
+            return_docs=True, 
+            cutoff=10, 
+        )
+    
+    doc_ids = [result['id'] for result in results]
+    response = {
+        'doc_ids': doc_ids,
+        'top_docs_for_terms': top_docs_for_terms
+    }
+    return jsonify(response)
+    
+    
 
 import json
 import nltk

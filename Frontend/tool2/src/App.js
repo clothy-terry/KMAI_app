@@ -286,7 +286,7 @@ const App = () => {
   }, []);
   const handleSearch = () => {
     setError(null);
-    fetch("http://localhost:5000/search", {
+    fetch("http://localhost:5000/v2/search", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query: searchTerm }),
@@ -297,12 +297,6 @@ const App = () => {
             return response.json().then((data) => {
               if (data.error === "Query must not be empty") {
                 throw new Error(data.error);
-              } else if (
-                data.error ===
-                "No keyword found, results are based on semantic search"
-              ) {
-                setDocuments(data.doc_ids);
-                throw new Error(data.error);
               }
             });
           }
@@ -311,11 +305,10 @@ const App = () => {
         return response.json();
       })
       .then((data) => {
-        if (data.doc_ids && data.top_docs_for_terms) {
+        if (data.doc_ids) {
           setDocuments(data.doc_ids);
-          setTopDocsForTerms(data.top_docs_for_terms);
         } else {
-          console.log("Response is empty");
+          setError("Response is empty");
         }
       })
       .catch((error) => {
