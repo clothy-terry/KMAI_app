@@ -25,7 +25,14 @@ body, html {
 }
 
 .title-section h1 {
-  margin-left: 10px;
+  background-color: #005591;
+  color: white;
+  width: 85px;
+  
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .search-ui {
@@ -59,12 +66,12 @@ body, html {
   background-color: white;
 }
 
-.clear-button, .search-button {
+.clear-button, .search-button, .generate-table-button {
   background: none;
   border: none;
   cursor: pointer;
   margin-left: 5px;
-  color: #005591;
+  
 }
 
 
@@ -72,7 +79,7 @@ body, html {
   font-size: 1.5rem;
 }
 
-.search-button {
+.search-button, .generate-table-button{
   background-color: #005591;
   color: white;
   padding: 10px 20px;
@@ -104,7 +111,7 @@ body, html {
 }
 
 .domain-list {
-  width: 100%;
+  
   padding: 20px;
   border: 1px solid #ccc;
   background-color: white;
@@ -128,14 +135,14 @@ body, html {
 }
 
 .customization-section {
-  padding: 20px;
+  padding: 0px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .numDocs-customization {
-  background-color: #BEC8D7;
+  background-color: #e8e8e8;
   width: 330px;
 }
 
@@ -184,24 +191,9 @@ body, html {
 }
 
 
-.keyword-add-container {
-  position: relative;
-  width: 100%;
+.user-keyword-section{
   display: flex;
-  align-items: center; /* Aligns items on the line (same as the current line height) */
-  justify-content: space-between; /* Distributes items evenly in the line; first item is on the start line, last item on the end line */
-  border: 1px solid #BEC8D7;
-  padding: 5px;
-  border-radius: 5px;
-  margin: auto;
-  
 }
-
-.predefined-list-container {
-  padding: 20px;
-  
-}
-
 /**/
 .keyword-bar {
   flex-grow: 1; /* Takes up the remaining space */
@@ -211,14 +203,18 @@ body, html {
   background-color: white;
 }
 
-.keyword-clear-button, .keyword-add-button {
-  background: none;
-  border: none;
+.keyword-add-button {
   cursor: pointer;
-  margin-left: 5px;
   color: #005591;
+  width: 120px;
+  height: 50px;
 }
 
+.keyword-add-button-container{
+  display: flex; 
+  justify-content: center; /* Centers its children horizontally */
+  align-items: center; /* Centers its children vertically */
+}
 
 .keyword-clear-button {
   font-size: 1.5rem;
@@ -246,4 +242,51 @@ body, html {
 .user_index_check_upload {
   display: flex;
   align-items: center;
+}
+
+.user_index_section {
+  padding: 20px;
+  border: 5px solid #ccc;
+  margin-right: -31px;
+}
+
+.user_search_section{
+  padding: 20px;
+  border: 5px solid #ccc;
+  margin-right: -31px;
+}
+
+.Linde_logo_image {
+  width: 13%; 
+  height: 13%;
+}
+
+.logo_section{
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+}
+
+.logo_text{
+  background-color: #005591;
+  color: white;
+  font-size: 75%;
+  width: 145px;
+  padding: 7px;
+  margin-bottom: 70px;
+  margin-left: 10px;
+  margin-top: 0px;
+}
+
+.excel-generate-section {
+  padding: 20px;
+  border: 5px solid #ccc;
+  margin-left: -31px;
+}
+
+.user-keyword-section{
+  padding: 20px;
+  border: 5px solid #ccc;
+  margin-left: -31px;
 }

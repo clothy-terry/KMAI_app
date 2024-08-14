@@ -30,6 +30,7 @@ const App = () => {
     } else {
       setError(null);
     }
+    setUserIndexResponse("Switching...");
     fetch(`http://localhost:5000/switch_index/${indexName}`)
       .then((response) => response.json())
       .then((data) => {
@@ -350,126 +351,136 @@ const App = () => {
 
   return (
     <div className="app">
+      <div className="logo_section">
+        <img
+          src="/Linde_logo2.png"
+          alt="Linde_logo"
+          className="Linde_logo_image"
+        />
+        <h3 className="logo_text">Knowledge Management</h3>
+      </div>
+
       <div className="title-section">
         <h1>KMAI</h1>
       </div>
       <div className="search-ui">
         <div className="left-half">
-          <div className="user_doc_upload_input">
-            <input type="file" ref={fileInputRef} multiple />
-          </div>
-          <div className="user_index_check_upload">
-            <input
-              type="text"
-              value={indexName}
-              onChange={(e) => setIndexName(e.target.value)}
-              placeholder="Enter index name"
-            />
-            <button onClick={handleCheckIndex}>Check</button>
-            <button onClick={handleUseIndex}>Use</button>
-            <button onClick={handleUserDocUpload}>Upload</button>
-            <button onClick={handleDeleteIndex}>Delete</button>
-            {userIndexResponse && <div>{userIndexResponse}</div>}
+          <div className="user_index_section">
+            <div className="user_doc_upload_input">
+              <input type="file" ref={fileInputRef} multiple />
+            </div>
+            <div className="user_index_check_upload">
+              <input
+                type="text"
+                value={indexName}
+                onChange={(e) => setIndexName(e.target.value)}
+                placeholder="Enter index name"
+              />
+              <button onClick={handleCheckIndex}>Check</button>
+              <button onClick={handleUseIndex}>Use</button>
+              <button onClick={handleUserDocUpload}>Upload</button>
+              <button onClick={handleDeleteIndex}>Delete</button>
+              {userIndexResponse && <div>{userIndexResponse}</div>}
+            </div>
           </div>
           <div className="results">
             {error && <div className="error-popup">{error}</div>}
           </div>
-          <div className="customization-section">
-            <div className="numDocs-customization">
-              Display
+          <div className="user_search_section">
+            <div className="search-container" ref={searchContainerRef}>
               <input
-                type="number"
-                min="1"
-                max="10"
-                value={numDocs}
-                onChange={(e) => setNumDocs(e.target.value)}
+                type="text"
+                className="search-bar"
+                placeholder="User search query"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={handleSearchFocus}
               />
-              /10 documents
+              <button className="clear-button" onClick={handleClearSearch}>
+                x
+              </button>
+              <button className="search-button" onClick={handleSearch}>
+                Search
+              </button>
+              {showHistory && (
+                <div className="search-history">
+                  {searchHistory.map((history, index) => (
+                    <div
+                      key={index}
+                      className="history-item"
+                      onMouseDown={() => handleHistoryClick(history)}
+                    >
+                      {history}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-          <div className="search-container" ref={searchContainerRef}>
-            <input
-              type="text"
-              className="search-bar"
-              placeholder="User search query"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onFocus={handleSearchFocus}
-            />
-            <button className="clear-button" onClick={handleClearSearch}>
-              x
-            </button>
-            <button className="search-button" onClick={handleSearch}>
-              Search
-            </button>
-            {showHistory && (
-              <div className="search-history">
-                {searchHistory.map((history, index) => (
-                  <div
-                    key={index}
-                    className="history-item"
-                    onMouseDown={() => handleHistoryClick(history)}
-                  >
-                    {history}
-                  </div>
-                ))}
+            <div className="domain-list">
+              <div className="customization-section">
+                <div className="numDocs-customization">
+                  Display
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={numDocs}
+                    onChange={(e) => setNumDocs(e.target.value)}
+                  />
+                  /10 documents
+                </div>
               </div>
-            )}
-          </div>
-          <div className="domain-list">
-            <h3>Document IDs:</h3>
-            {documents.slice(0, numDocs).map((doc, index) => (
-              <div key={index} className="document-name">
-                {doc}
-              </div>
-            ))}
+              <h3>Document IDs:</h3>
+              {documents.slice(0, numDocs).map((doc, index) => (
+                <div key={index} className="document-name">
+                  {doc}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         <div className="right-half">
-          <div className="predefined-list-container">
-            <select onChange={handleListSelect}>
-              <option value="list0">Select a keyword list</option>
-              <option value="list1">Keyword List 1</option>
-              <option value="list2">Keyword List 2</option>
-              {userUploadedKeywordList.length > 0 && (
-                <option value="list3">User Uploaded Keyword List</option>
-              )}
-            </select>
-            <button onClick={handleViewClick}>View</button>
-            <button onClick={handleAddAllClick}>Add</button>
-            <button onClick={handleTemplateDownload}>Download Template</button>
-            <input type="file" accept=".xlsx" onChange={handleFileUpload} />
-            {addError && <div className="error-popup">{addError}</div>}
-            <Modal
-              isOpen={isModalOpen}
-              onRequestClose={() => setIsModalOpen(false)}
-            >
-              {selectedList && selectedList.map((keyword) => <p>{keyword}</p>)}
-            </Modal>
+          <div className="user-keyword-section" ref={searchContainerRef}>
+            <div className="keyword-list-section">
+              <button onClick={handleTemplateDownload}>
+                Download Template
+              </button>
+              <input type="file" accept=".xlsx" onChange={handleFileUpload} />
+              <div>
+                <select onChange={handleListSelect}>
+                  <option value="list0">Select keywords file</option>
+                  <option value="list1">Keyword List 1</option>
+                  <option value="list2">Keyword List 2</option>
+                  {userUploadedKeywordList.length > 0 && (
+                    <option value="list3">User Uploaded Keyword List</option>
+                  )}
+                </select>
+                <button onClick={handleViewClick}>View</button>
+                <button onClick={handleAddAllClick}>Add List</button>
+              </div>
+              {addError && <div className="error-popup">{addError}</div>}
+              <Modal
+                isOpen={isModalOpen}
+                onRequestClose={() => setIsModalOpen(false)}
+              >
+                {selectedList &&
+                  selectedList.map((keyword) => <p>{keyword}</p>)}
+              </Modal>
+              <input
+                type="text"
+                className=""
+                placeholder="Manually add keywords"
+                value={currentUserInput}
+                onChange={handleUserInputChange}
+              />
+              <button onClick={handleAddButtonClick}>Add</button>
+            </div>
+            <div className="keyword-add-button-container"><button className="keyword-add-button" onClick={handleUserKeywordViewClick}>
+              View Added Keywords
+            </button></div>
+            
           </div>
 
-          <div className="keyword-add-container" ref={searchContainerRef}>
-            <input
-              type="text"
-              className="keyword-bar"
-              placeholder="User keywords"
-              value={currentUserInput}
-              onChange={handleUserInputChange}
-            />
-            <button
-              className="keyword-clear-button"
-              onClick={handleUserInputClear}
-            >
-              x
-            </button>
-            <button
-              className="keyword-add-button"
-              onClick={handleAddButtonClick}
-            >
-              Add
-            </button>
-          </div>
-          <button onClick={handleUserKeywordViewClick}>View User Inputs</button>
           <Modal
             isOpen={isUserKeywordModalOpen}
             onRequestClose={() => setIsUserKeywordModalOpen(false)}
@@ -486,8 +497,8 @@ const App = () => {
               </div>
             ))}
           </Modal>
-          <div className="word-doc-excel">
-            <button onClick={() => handleExcelGenerate()}>
+          <div className="excel-generate-section">
+            <button className="generate-table-button" onClick={() => handleExcelGenerate()}>
               Generate Table
             </button>
             <button onClick={handleResultDownload}>Download Result</button>

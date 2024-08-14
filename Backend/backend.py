@@ -50,7 +50,7 @@ def search():
 @app.route('/switch_index/<index_name>', methods=['GET'])
 def switch_index(index_name):
     global current_hr
-    if index_name == 'index2':
+    if index_name == 'km':
         current_hr = km_hr
     else:
         index_directory = os.path.join('index_files', 'collections', index_name)
@@ -253,6 +253,9 @@ def extract_and_build_index_route():
 
 @app.route('/check_index/<index_name>', methods=['GET'])
 def check_index(index_name):
+    if index_name == 'km':
+        # use 'km' to represent 'index2' to avoid accident deletion
+        index_name = 'index2'
     directory = os.path.join('index_files', 'collections', index_name)
     if os.path.exists(directory):
         return jsonify({'message': f'Available!'})
