@@ -16,7 +16,7 @@ class HybridRetriever(BaseRetriever):
     def __init__(
         self,
         # Global params
-        index_name: str = "index2",
+        index_name: str = "test_hr",
         # Sparse retriever params
         sr_model: str = "bm25",
         min_df: int = 1,
@@ -210,7 +210,7 @@ class HybridRetriever(BaseRetriever):
         self.merger.save()
 
     @staticmethod
-    def load(index_name: str = "new-index"):
+    def load(index_name: str = "test_hr"):
         """Load a retriever and its index.
 
         Args:

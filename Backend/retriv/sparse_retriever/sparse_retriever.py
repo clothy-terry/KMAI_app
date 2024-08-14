@@ -148,7 +148,7 @@ class SparseRetriever(BaseRetriever):
         Returns:
             SparseRetriever: Sparse Retriever.
         """
-
+        print('sparseRetriever load', index_name)
         state = np.load(sr_state_path(index_name), allow_pickle=True)["state"][()]
 
         se = SparseRetriever(**state["init_args"])

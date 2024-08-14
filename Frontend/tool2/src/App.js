@@ -19,9 +19,23 @@ const App = () => {
     "Previous search 3",
   ]);
   const [numDocs, setNumDocs] = useState(5);
-  /* user check and delete index folder*/
+
+  /* user check, use, or delete index folder*/
   const [userIndexResponse, setUserIndexResponse] = useState("");
   const [indexName, setIndexName] = useState("");
+  const handleUseIndex = () => {
+    if (indexName === "") {
+      setError("Please enter an index name");
+      return;
+    } else {
+      setError(null);
+    }
+    fetch(`http://localhost:5000/switch_index/${indexName}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setUserIndexResponse(data["message"]);
+      });
+  };
   const handleCheckIndex = () => {
     if (indexName === "") {
       setError("Please enter an index name");
@@ -352,6 +366,7 @@ const App = () => {
               placeholder="Enter index name"
             />
             <button onClick={handleCheckIndex}>Check</button>
+            <button onClick={handleUseIndex}>Use</button>
             <button onClick={handleUserDocUpload}>Upload</button>
             <button onClick={handleDeleteIndex}>Delete</button>
             {userIndexResponse && <div>{userIndexResponse}</div>}

@@ -51,6 +51,9 @@ class BaseRetriever:
                 f.write(orjson.dumps(x) + "\n".encode())
 
     def initialize_doc_index(self):
+        print('initialize_doc_index', self.index_name)
+        #print('new_initialize_doc_index', index_name)
+        # self.index_name -> index_name
         self.doc_index = Indxr(docs_path(self.index_name))
 
     def initialize_id_mapping(self):

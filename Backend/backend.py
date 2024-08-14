@@ -8,11 +8,16 @@ from retriv import HybridRetriever
 app = Flask(__name__)
 CORS(app)
 
-dr = DenseRetriever.load("new-index")
-sr = SparseRetriever.load("sparse_index(1)_June_20_2024")
-hr = HybridRetriever.load("index2")
 
+# when we built the index, the index name is embedded within the index files, 
+# so simply change the index folder name will not work
+# If want to change index name, need to rebuild index with new index name from jsonl
+km_hr = HybridRetriever.load("index2")
+current_hr = km_hr
 
+# old search api route, simple merge by concat 2 results, without normalization
+# dr = DenseRetriever.load("new-index")
+# sr = SparseRetriever.load("sparse_index(1)_June_20_2024")
 @app.route('/search', methods=['POST'])
 def search():
     data = request.get_json()
@@ -42,20 +47,34 @@ def search():
     }
     return jsonify(response)
 
+@app.route('/switch_index/<index_name>', methods=['GET'])
+def switch_index(index_name):
+    global current_hr
+    if index_name == 'index2':
+        current_hr = km_hr
+    else:
+        index_directory = os.path.join('index_files', 'collections', index_name)
+        if not os.path.exists(index_directory):
+            return jsonify({'message': 'index not exist'})
+        new_hr = HybridRetriever.load(index_name)
+        current_hr = new_hr
+    return jsonify({'message': f'Searching in {index_name}'})
+
+# use min-max normalization to calculate relative score of docs in dr result and sr result, customizable weights
 @app.route('/v2/search', methods=['POST'])
 def search_V2():
     data = request.get_json()
     query = data.get('query')
-    
+
     # Check if the query is empty
     if not query:
         return jsonify({'error': 'Query must not be empty'}), 400
     
     merger = Merger()
-    merger.params = {"weights": [0.7, 0.3]}  # Set the weights for the two retrieval runs
-    hr.merger = merger
-    results, top_docs_for_terms = hr.search(
-            query='nitrogen hydrogen',  # What to search for
+    merger.params = {"weights": [0.7, 0.3]}  # Set the weights for the two retrieval runs [w_sparse, w_dense]
+    current_hr.merger = merger
+    results, top_docs_for_terms = current_hr.search(
+            query=query,  # What to search for
             return_docs=True, 
             cutoff=10, 
         )

@@ -24,6 +24,7 @@ def index_path(index_name: str):
 
 
 def docs_path(index_name: str):
+    print('doc_path', index_name)
     return index_path(index_name) / "docs.jsonl"
 
 
