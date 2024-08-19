@@ -226,6 +226,11 @@ class SparseRetriever(BaseRetriever):
         self.save()
         return self
 
+    """
+    Generate Sparse Embedding of User documents
+    Document 1: “The cat sat on the mat.”
+    Document 2: “The dog sat on the log.”
+    """
     def index_file(
         self, path: str, callback: callable = None, show_progress: bool = True
     ):

@@ -25,6 +25,24 @@ def bm25(
     operator: str = "OR",
     subset_doc_ids: np.ndarray = None,
     ) -> Tuple[np.ndarray]:
+    """
+    The BM25 score of a document `D` for a given query `Q` containing keywords `q_i` is calculated using the following formula:
+
+    3 components: IDF, TF, relative_doc_len, weights(b, k1)
+    BM25(D, Q) = sum(IDF(q_i) * ((f(q_i, D) * (k1 + 1)) / (f(q_i, D) + k1 * (1 - b + b * (|D| / avgdl))))
+
+    where:
+    - f(q_i, D) TF is the frequency of the query term `q_i` in the document `D`.
+    - |D| is the length of the document `D` in words.
+    - avgdl is the average document length in the text collection from which documents are drawn.
+    - k1 and b are free parameters. Typical values in the absence of an advanced optimization are k1=1.2 and b=0.75.
+    - IDF(q_i) is the Inverse Document Frequency weight of the query term `q_i`. It is usually computed as:
+
+    IDF(q_i) = log((N - n(q_i) + 0.5) / (n(q_i) + 0.5))
+
+    where `N` is the total number of documents in the collection, and `n(q_i)` is the number of documents containing `q_i`
+    Why IDF? Words unique to a small percentage of documents (e.g., technical jargon terms) receive higher importance values than words common across all documents (e.g., ‘a’, ‘the’, ‘and’)
+    """
     if operator == "AND":
         unique_doc_ids = intersect_sorted_multi(doc_ids)
     elif operator == "OR":

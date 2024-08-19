@@ -25,10 +25,9 @@ body, html {
 }
 
 .title-section h1 {
-  background-color: #005591;
-  color: white;
-  width: 85px;
   
+  color: #005591;
+  width: 85px;
   padding-top: 5px;
   padding-bottom: 5px;
   padding-left: 10px;
@@ -269,7 +268,7 @@ body, html {
 }
 
 .logo_text{
-  background-color: #005591;
+  background-color: #00A0E1;
   color: white;
   font-size: 75%;
   width: 145px;
@@ -280,7 +279,8 @@ body, html {
 }
 
 .excel-generate-section {
-  padding: 20px;
+  padding-left: 20px;
+  padding-bottom: 90.5px;
   border: 5px solid #ccc;
   margin-left: -31px;
 }
@@ -289,4 +289,16 @@ body, html {
   padding: 20px;
   border: 5px solid #ccc;
   margin-left: -31px;
+}
+
+.excel-generate-section input {
+  display: block;
+  margin-bottom: 10px;
+  width: 75px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
 }

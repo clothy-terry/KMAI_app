@@ -175,7 +175,21 @@ def keyword_context():
                             keyword_context[keyword] = [sentence.text]
         # find nearby words of key phrase
         else:
-            pass
+            matcher = PhraseMatcher(nlp.vocab, attr='LOWER')
+            # store the sequence of token/key phrase/pattern to a Doc object for efficient find
+            key_phrase = [nlp.make_doc(keyword) for keyword in keywords]
+            matcher.add("KeywordMatcher", key_phrase)
+
+            matches = matcher(doc)
+            for match_id, start, end in matches:
+                keyword = doc[start:end].text
+                context_start = max(0, start - window_size)
+                context_end = min(len(doc), end + window_size)
+                context = doc[context_start:context_end].text
+                if keyword in keyword_context:
+                    keyword_context[keyword].append(context)
+                else:
+                    keyword_context[keyword] = [context]
 
         return keyword_context
     res_doc_keyword_dict = {}

@@ -134,45 +134,63 @@ const App = () => {
 
   const [gridData, setGridData] = useState({ columns: [], rows: [] });
 
+  const [windowSize, setWindowSize] = useState(null);
+
+  const [excelGenerateMessage, setExcelGenerateMessage] = useState(null);
+
+  const handleSetWindowSize = (event) => {
+    setWindowSize(event.target.value);
+  };
+
   const generateData = () => {
-    fetch("http://localhost:5000/keyword_context", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        doc_ids: documents.slice(0, numDocs),
-        keywords: UserKeywords,
-        window_size: null, // Set to None if require context of entire sentence.
-      }),
-    })
-      .then((response) => response.json())
-      .then((doc_keyword_dict) => {
-        const data = documents.slice(0, numDocs).map((doc, i) => {
-          const row = { id: i, document_name: doc };
-          UserKeywords.forEach((keyword, j) => {
-            if (doc_keyword_dict[doc] && doc_keyword_dict[doc][keyword]) {
-              row[keyword] = doc_keyword_dict[doc][keyword][0];
-            } else {
-              row[keyword] = `Not Found`; // cell value
-            }
+    return new Promise((resolve, reject) => {
+      fetch("http://localhost:5000/keyword_context", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          doc_ids: documents.slice(0, numDocs),
+          keywords: UserKeywords,
+          window_size: windowSize ? parseInt(windowSize) : null, // Set to null if require context of entire sentence.
+        }),
+      })
+        .then((response) => response.json())
+        .then((doc_keyword_dict) => {
+          const data = documents.slice(0, numDocs).map((doc, i) => {
+            const row = { id: i, document_name: doc };
+            UserKeywords.forEach((keyword, j) => {
+              if (doc_keyword_dict[doc] && doc_keyword_dict[doc][keyword]) {
+                row[keyword] = doc_keyword_dict[doc][keyword][0];
+              } else {
+                row[keyword] = `Not Found`; // cell value
+              }
+            });
+            return row;
           });
-          return row;
+
+          const columns = [
+            { key: "document_name", name: "Document Name" },
+            ...UserKeywords.map((keyword, i) => ({
+              key: keyword, // Use keyword as key
+              name: keyword,
+            })),
+          ];
+
+          setGridData({ columns, rows: data });
+          resolve();
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          reject(error);
         });
-
-        const columns = [
-          { key: "document_name", name: "Document Name" },
-          ...UserKeywords.map((keyword, i) => ({
-            key: keyword, // Use keyword as key
-            name: keyword,
-          })),
-        ];
-
-        setGridData({ columns, rows: data });
-      });
+    });
   };
 
   const handleExcelGenerate = () => {
-    setExcelModalIsOpen(true);
-    generateData();
+    setExcelGenerateMessage("Generating...");
+    generateData().then(() => {
+      setExcelModalIsOpen(true);
+      setExcelGenerateMessage("Completed!");
+    });
   };
 
   /*user keyword model pop up*/
@@ -475,10 +493,14 @@ const App = () => {
               />
               <button onClick={handleAddButtonClick}>Add</button>
             </div>
-            <div className="keyword-add-button-container"><button className="keyword-add-button" onClick={handleUserKeywordViewClick}>
-              View Added Keywords
-            </button></div>
-            
+            <div className="keyword-add-button-container">
+              <button
+                className="keyword-add-button"
+                onClick={handleUserKeywordViewClick}
+              >
+                View Added Keywords
+              </button>
+            </div>
           </div>
 
           <Modal
@@ -498,10 +520,23 @@ const App = () => {
             ))}
           </Modal>
           <div className="excel-generate-section">
-            <button className="generate-table-button" onClick={() => handleExcelGenerate()}>
-              Generate Table
-            </button>
-            <button onClick={handleResultDownload}>Download Result</button>
+            <h5>Identify the sentences where each keyword is located.</h5>
+            <input placeholder="window size" value={windowSize} onChange={handleSetWindowSize} />
+            <div className="button-container">
+              <button
+                className="generate-table-button"
+                onClick={() => handleExcelGenerate()}
+              >
+                Generate Table
+              </button>
+              <button
+                className="generate-table-button"
+                onClick={handleResultDownload}
+              >
+                Download
+              </button>
+            </div>
+            <div>{excelGenerateMessage}</div>
             <Modal
               isOpen={excelModalIsOpen}
               onRequestClose={() => setExcelModalIsOpen(false)}
