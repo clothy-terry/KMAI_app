@@ -65,13 +65,14 @@ def switch_index(index_name):
 def search_V2():
     data = request.get_json()
     query = data.get('query')
+    weights_list = data.get('weights_list')
 
     # Check if the query is empty
     if not query:
         return jsonify({'error': 'Query must not be empty'}), 400
     
     merger = Merger()
-    merger.params = {"weights": [0.7, 0.3]}  # Set the weights for the two retrieval runs [w_sparse, w_dense]
+    merger.params = {"weights": weights_list}  # Set the weights for the two retrieval runs [w_sparse, w_dense]
     current_hr.merger = merger
     results, top_docs_for_terms = current_hr.search(
             query=query,  # What to search for
@@ -280,11 +281,13 @@ import shutil
 
 @app.route('/delete_index/<index_name>', methods=['DELETE'])
 def delete_index(index_name):
-    directory = os.path.join('index_files', 'collections', index_name)
+    doc_directory = os.path.join(index_name)
+    index_directory = os.path.join('index_files', 'collections', index_name)
     jsonl_file = f'{index_name}.jsonl'
-    if os.path.exists(jsonl_file) and os.path.exists(directory):
+    if os.path.exists(jsonl_file) and os.path.exists(index_directory) and os.path.exists(doc_directory):
         os.remove(jsonl_file)
-        shutil.rmtree(directory)
+        shutil.rmtree(index_directory)
+        shutil.rmtree(doc_directory)
         return jsonify({'message': f'"{index_name}" has been deleted.'})
     else:
         return jsonify({'message': f'Documents set not exist'})

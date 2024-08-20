@@ -57,6 +57,15 @@ body, html {
   margin: auto;
 }
 
+.weight-customize {
+  margin-top: -15px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px; 
+  font-size: small;
+}
+
 .search-bar {
   flex-grow: 1; /* Takes up the remaining space */
   padding: 10px;

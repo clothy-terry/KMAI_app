@@ -229,7 +229,9 @@ class SparseRetriever(BaseRetriever):
     """
     Generate Sparse Embedding of User documents
     Document 1: “The cat sat on the mat.”
+    {"the": 0.5, "cat": 1.0, "sat": 0.5, "on": 0.5, "mat": 1.0, "dog": 0.0, "log": 0.0}
     Document 2: “The dog sat on the log.”
+    {"the": 0.5, "cat": 0.0, "sat": 0.5, "on": 0.5, "mat": 0.0, "dog": 1.0, "log": 1.0}
     """
     def index_file(
         self, path: str, callback: callable = None, show_progress: bool = True

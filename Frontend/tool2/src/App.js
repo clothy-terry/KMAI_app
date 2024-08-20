@@ -233,8 +233,6 @@ const App = () => {
     const selectedOption = event.target.value;
     if (selectedOption === "list0") {
       setSelectedList(["please select a keywords list to view"]);
-    } else if (selectedOption === "list1") {
-      setSelectedList(keywordsList1);
     } else if (selectedOption === "list2") {
       setSelectedList(keywordsList2);
     } else if (selectedOption === "list3") {
@@ -302,6 +300,16 @@ const App = () => {
   };
 
   /* user search query func */
+  const handleSetLexicalWeight = (event) => {
+    setLexicalWeight(event.target.value)
+  }
+
+  const handleSetSemanticWeight = (event) => {
+    setSemanticWeight(event.target.value)
+  }
+  const [semanticWeight, setSemanticWeight] = useState(1)
+  const [lexicalWeight, setLexicalWeight] = useState(1)
+
   const searchContainerRef = useRef(null);
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -318,11 +326,15 @@ const App = () => {
     };
   }, []);
   const handleSearch = () => {
+    if ((!lexicalWeight) || (!semanticWeight)) {
+      setError('Weights can not be empty')
+      return
+    }
     setError(null);
     fetch("http://localhost:5000/v2/search", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: searchTerm }),
+      body: JSON.stringify({ query: searchTerm, weights_list: [parseInt(lexicalWeight), parseInt(semanticWeight)]}),
     })
       .then((response) => {
         if (!response.ok) {
@@ -405,11 +417,27 @@ const App = () => {
             {error && <div className="error-popup">{error}</div>}
           </div>
           <div className="user_search_section">
+          <div className="weight-customize">
+                <div>Semantic Search Weight:</div>
+                <input
+                  style={{ width: "10px", marginLeft:"-7px"  }}
+                  placeholder="1"
+                  value={semanticWeight}
+                  onChange={handleSetSemanticWeight}
+                />
+                <div>Keyword Search Weight:</div>
+                <input
+                  style={{ width: "10px", marginLeft:"-7px" }}
+                  placeholder="1"
+                  value={lexicalWeight}
+                  onChange={handleSetLexicalWeight}
+                />
+              </div>
             <div className="search-container" ref={searchContainerRef}>
               <input
                 type="text"
                 className="search-bar"
-                placeholder="User search query"
+                placeholder="Put your question here"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onFocus={handleSearchFocus}
@@ -467,7 +495,6 @@ const App = () => {
               <div>
                 <select onChange={handleListSelect}>
                   <option value="list0">Select keywords file</option>
-                  <option value="list1">Keyword List 1</option>
                   <option value="list2">Keyword List 2</option>
                   {userUploadedKeywordList.length > 0 && (
                     <option value="list3">User Uploaded Keyword List</option>
