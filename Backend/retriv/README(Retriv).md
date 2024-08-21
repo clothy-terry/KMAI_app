@@ -7,63 +7,12 @@ This project aims to enhance information retreival(IR) in Linde's knowledge mana
 - **Name**: Terry Liu
 - **Affiliation**: Linde Inc
 - **Supervisors**: Mushtaq Ahmed, Jeff Barr
-- **Release Date**: 6/12/2024
+- **Release Date**: 8/21/2024
 
-## Project Structure
+## Prerequisites
 
-This project has several directories and files:
-
-- `local_model`: This folder stores our fine-tuned Sentence-BERT (SBERT) model.
-
-- `other`: This folder contains other Python scripts that are not directly relevant to the project.
-
-- `small_doc_samples`: This folder contains a small portion of the dataset for testing purposes.
-
-- `text_mining`: This folder contains scripts for text mining and data cleaning.
-
-- `all_collected_text.json`: all collected text, preprocessed in json format to be feed in models
-
-- `dense_indexing.py` & `dense_search.py`: semantic search engine
-
-- `sparse_indexing.py` & `sparse_search/py`: keyword-based search engine
-
-## Getting Started
-
-These instructions will guide you on how to run the code on your local machine.
-
-### Prerequisites
-
-Ensure that you have Python>=3.8 installed on your machine.
-
-### Installation
-
-1. Navigate to the `search_engine` folder in your terminal.
+1. Ensure that you have Python>=3.8 installed on your machine.
 2. Install the necessary package by typing and entering: `pip install retriv`.
-
-### Running the Code
-
-To test the semantic search engine:
-1. Type and enter: `python dense_indexing.py`.
-2. Type and enter: `python dense_search.py`.
-
-To test the keyword search engine:
-1. Type and enter: `python sparse_indexing.py`.
-2. Type and enter: `python sparse_search.py`.
-
-## Usage
-
-After running the respective search scripts, you can enter your query to test the search engines.
-
-Example user query input:
-L-0246
-- Mostly Keyword: "Cold treatment processes discussed in this memorandum"
-- A few keywords: "The role of temperature in metal assembly processes"
-- No keywords: "The application of low temperatures in industrial manufacturing processes"
-
-HydrogenPortal / AustraliaEnergy2023.pdf
-- Mostly Keyword: "Australia's Climate Change Act 2022", "Australia's Powering Australia Plan"
-- A few keywords: "Australia's efforts in reducing methane emissions","The impact of the Capacity Investment Scheme on Australia's power system"
-- No keywords: "The significance of Australia's Powering Australia Plan in achieving clean electricity sources"
 
 ## Features
 
@@ -123,6 +72,5 @@ normalized_score = (score - min_score) / (max_score - min_score)
 The weights are either all equal (if self.params is None) or specified by self.params["weights"]. 
 Customization example:
     merger = Merger()
-    merger.params = {"weights": [0.7, 0.3]} 
-    # Please note that the weights should sum up to 1, and number of weights should be 2
+    merger.params = {"weights": [0.7, 0.3]}
     hr.merger = merger

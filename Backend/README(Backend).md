@@ -7,7 +7,7 @@ This project is an AI-powered search engine for knowledge management. It uses Fl
 - **Name**: Terry Liu
 - **Affiliation**: Linde Inc
 - **Supervisors**: Mushtaq Ahmed, Jeff Barr
-- **Release Date**: 6/20/2024
+- **Release Date**: 8/21/2024
 
 ## Project Structure
 
@@ -19,17 +19,19 @@ The project consists of several components:
 - `retriv`: This folder contains wrapped classes that provide the functionality of the AI-powered search engine. It stores the model inferencing code.
 - `test_backend_api.py`: This script tests the backend API.
 - `test_model_inference.py`: This script tests the model inference.
+- `all_collected_text.json`: all collected text from Knowledge Management Site Content, preprocessed in json format to be feed in models
 
 ## Getting Started
-
-1. Clone the repository.
-2. Install the required dependencies.
+1. Ensure that you have Python>=3.8 installed on your machine.
+2. cd into (..\backend) to install:
+pip install Flask
+pip install flask-cors
+pip install retriv
+pip install spacy
+python -m spacy download en_core_web_sm
+pip install Werkzeug
 3. Run the Flask application using the command `python Backend.py`.
-
-## Usage
-
-To use the search engine, send a POST request to the `/search` endpoint with your query in the request body. The query must not be empty. The response will contain the IDs of the top documents that match the query.
 
 ## Testing
 
-You can test the backend API and the model inference using the provided test scripts. Run `python test_backend_api.py` and `python test_model_inference.py` to execute the tests.
+You can test the backend API and the model inference using the provided test scripts. Run `python test_backend.py` and `python test_model_inference.py` to execute the tests.

@@ -495,7 +495,7 @@ const App = () => {
               <div>
                 <select onChange={handleListSelect}>
                   <option value="list0">Select keywords file</option>
-                  <option value="list2">Keyword List 2</option>
+                  <option value="list2">Chemicals Keywords</option>
                   {userUploadedKeywordList.length > 0 && (
                     <option value="list3">User Uploaded Keyword List</option>
                   )}
