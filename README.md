@@ -1,4 +1,4 @@
-# KM Search Engine
+# KMAI App for AI-Powered Documents Retrieval
 This project is designed to revolutionize information retrieval (IR) within Linde’s knowledge management system. It consists of two main components: a Flask Backend and a React Frontend. The Backend serves as an AI-driven search engine, specifically tailored for knowledge management, while the Frontend, built with React, provides an intuitive user interface for seamless interaction with the tool.
 
 ## Business Demands & Objectives
