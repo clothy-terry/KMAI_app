@@ -4,13 +4,6 @@
 
 KM Search Engine is a React-based front-end application for a knowledge management search engine. It provides a user-friendly interface for querying a knowledge base and displays the results in a structured format. This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Author Information
-
-- **Name**: Terry Liu
-- **Affiliation**: Linde Inc
-- **Supervisors**: Mushtaq Ahmed, Jeff Barr
-- **Release Date**: 8/21/2024
-
 ## Getting Started
 
 1. Make sure you have:
