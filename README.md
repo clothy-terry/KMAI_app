@@ -2,8 +2,8 @@
 This project is designed to revolutionize information retrieval (IR) within Linde’s knowledge management system. It consists of two main components: a Flask Backend and a React Frontend. The Backend serves as an AI-driven search engine, specifically tailored for knowledge management, while the Frontend, built with React, provides an intuitive user interface for seamless interaction with the tool.
 
 ## Business Demands & Objectives
-![Architecture Diagram](./assets/user_demand.jpg)
-![Architecture Diagram](./assets/kmai_objective.jpg)
+<img src="./assets/user_demand.jpg" alt="KMAI_Objective" width="46%" height="46%">
+<img src="./assets/kmai_objective.jpg" alt="KMAI_Objective" width="30%" height="30%">
 
 
 ## Author Information
@@ -41,19 +41,24 @@ npm start
 
 ### Overview
 Core components of this project and backend service. They take a user’s query and return the most relevant documents from your knowledge base.  The semantic search engine(Dense Retriever) uses a dense vector space model(SBERT) to find semantically similar documents, while the keyword-base search engine(Sparse Retriever) uses a sparse vector space model(BM25, Tf-Idf) to find documents that match the query terms. Merger plays a crucial role in fusing the results from the Sparse and Dense Retrievers to generate a comprehensive set of hybrid results. See details in (..\backend\retriv\README(Retriv).md)
-![Architecture Diagram](./assets/key_components.jpg)
+
+<img src="./assets/key_components.jpg" alt="key_comp" width="70%" height="70%">
 
 ### Dense Retriever (Semantic Search)
 The dense retriever handles keyword matches and can handle user queries with minimal or no keywords at all. It utilizes the SBERT model to compute vector representations of queries and documents to determine relevance scores. The documents are transformed into low-dimensional vectors, each capturing more abstract meaning rather than specific words. The vector is dense as its elements are non-zero. See details in (..\backend\retriv\README(Retriv).md)
-![Architecture Diagram](./assets/semantic_search_comp.jpg)
+
+<img src="./assets/semantic_search_comp.jpg" alt="semantic_search_comp" width="70%" height="70%">
 
 ### Sparse Search Engine (Keyword-based Search)
 The sparse search engine is ideal for tasks involving exact keyword match. Ituses the BM25 algorithm to rank a set of documents base on relevance score between a query and a document. The algorithm consists of three main parts: term frequency, inverse document frequency, and document length normalization. See details in (..\backend\retriv\README(Retriv).md)
-![Architecture Diagram](./assets/keyword_search_comp.jpg)
+
+<img src="./assets/keyword_search_comp.jpg" alt="keyword_search_comp" width="70%" height="70%">
 
 ### Hybrid Retriever with Merger
 The Hybrid Retriever leverages both lexical and semantic matching, is composed of three integral components: the Sparse Retriever, the Dense Retriever, and the Merger. The Merger plays a crucial role in fusing the results from the Sparse and Dense Retrievers to generate a comprehensive set of hybrid results. This design ensures an unbiased approach towards any specific type of search engine and relevant results for wider range of user query. Furthermore, its customizable weight configuration allows for a personalized search experience tailored to the user’s specific needs. See details in (..\backend\retriv\README(Retriv).md)
-![Architecture Diagram](./assets/merger.jpg)
+
+<img src="./assets/merger.jpg" alt="merger" width="70%" height="70%">
+
 
 
 ## Backend
@@ -62,7 +67,7 @@ The Hybrid Retriever leverages both lexical and semantic matching, is composed o
 An AI-powered search engine support API requests from KMAI frontend. It's built on Flask, leverages Dense and Sparse Retrievers for information retrieval base on semantic meaning and lexical matching.
 
 ### Backend Architecture
-![Architecture Diagram](./assets/backend_architecture.jpg)
+<img src="./assets/backend_architecture.jpg" alt="backend_architecture" width="70%" height="70%">
 
 ### Backend Folder Structure
 The folder consists of several components:
@@ -87,7 +92,7 @@ You can test the backend API and the model inference using the provided test scr
 The Frontend is a a user-friendly interface created with React. It was bootstrapped with Create React App. It handles user interactions, manages the UI components states, and sends HTTP requests to the backend server. It also displays the results returned by the server. This frontend was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ### Frontend Architecture
-![Architecture Diagram](./assets/frontend_architecture.jpg)
+<img src="./assets/frontend_architecture.jpg" alt="frontend_architecture" width="70%" height="70%">
 
 ### Frontend Features
 - Search Bar: Users can type their queries into the search bar.
