@@ -2,8 +2,8 @@
 This project is designed to revolutionize information retrieval (IR) within Linde’s knowledge management system. It consists of two main components: a Flask Backend and a React Frontend. The Backend serves as an AI-driven search engine, specifically tailored for knowledge management, while the Frontend, built with React, provides an intuitive user interface for seamless interaction with the tool.
 
 ## Business Demands & Objectives
-<img src="./assets/user_demand.jpg" alt="KMAI_Objective" width="46%" height="46%">
-<img src="./assets/kmai_objective.jpg" alt="KMAI_Objective" width="30%" height="30%">
+<img src="./assets/user_demand.jpg" alt="KMAI_Objective" width="70%" height="70%">
+<img src="./assets/kmai_objective.jpg" alt="KMAI_Objective" width="50%" height="50%">
 
 
 ## Author Information
